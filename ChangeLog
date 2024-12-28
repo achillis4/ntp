@@ -1,6 +1,7 @@
 ---
 * [Bug 3960] Remove duplicate ntp.conf.def content, reported by
              Ulrich Windl. <stenn@ntp.org>
+* Makefile.am: Another tweak to check-local.  <stenn@ntp.org>
 * cleanup github-specific files.  <stenn@ntp.org>
 * Add COPYRIGHT.md and LICENSE.md.  <stenn@ntp.org>
 * Makefile.am: Fix distcheck problem with check-local.  <stenn@ntp.org>
