@@ -384,12 +384,13 @@ authreadkeys(
 
 	/* first remove old file-based keys */
 	auth_delkeys();
-	/* insert the new key material */
+	/* insert the new key material - FIPS 140-2: MD5 key support removed */
 	while (NULL != (next = list)) {
 		list = next->next;
-		MD5auth_setkey(next->keyid, next->keytype,
-			       next->secbuf, next->seclen, next->keyacclist);
-		next->keyacclist = NULL; /* consumed by MD5auth_setkey */
+		/* FIPS 140-2: MD5auth_setkey call removed - MD5 authentication disabled */
+		/* MD5auth_setkey(next->keyid, next->keytype,
+		   next->secbuf, next->seclen, next->keyacclist); */
+		next->keyacclist = NULL; /* would have been consumed by MD5auth_setkey */
 		free_keydata(next);
 	}
 	return (1);

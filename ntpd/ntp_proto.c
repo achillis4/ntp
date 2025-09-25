@@ -1133,7 +1133,7 @@ receive(
 			 * % can't happen
 			 */
 			if (has_mac < (int)MAX_MD5_LEN) {
-				DPRINTF(2, ("receive: drop: MD5 digest too short\n"));
+				DPRINTF(2, ("receive: drop: MAC digest too short\n"));
 				sys_badauth++;
 				return;
 			}

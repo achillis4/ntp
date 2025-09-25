@@ -145,7 +145,7 @@ libisc_SRCS += 						\
 endif
 
 libntp_a_SRCS =						\
-	a_md5encrypt.c					\
+	addr2refid.c					\
 	adjtime.c					\
 	atoint.c					\
 	atolfp.c					\

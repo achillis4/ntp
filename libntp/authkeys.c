@@ -745,6 +745,7 @@ authistrusted(
  * with a NUL would be a bug.
  * perlinger@ntp.org 2015-10-10
  */
+#if 0
 void
 MD5auth_setkey(
 	keyid_t keyno,
@@ -814,6 +815,7 @@ MD5auth_setkey(
 	}
 #endif
 }
+#endif
 
 
 /*
@@ -896,9 +898,8 @@ authencrypt(
 		return 0;
 	}
 
-	return MD5authencrypt(cache_type,
-			      cache_secret, cache_secretsize,
-			      pkt, length);
+	/* FIPS 140-2: MD5auth functions completely removed */
+	return 0;
 }
 
 
@@ -925,9 +926,8 @@ authdecrypt(
 		return FALSE;
 	}
 
-	return MD5authdecrypt(cache_type,
-			      cache_secret, cache_secretsize,
-			      pkt, length, size, keyno);
+	/* FIPS 140-2: MD5auth functions completely removed */
+	return FALSE;
 }
 
 

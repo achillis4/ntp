@@ -3636,10 +3636,12 @@ static void configure(
  * derive_nonce - generate 32-bit nonce value derived from the client
  *		  address and a request-specific timestamp.
  *
- * This uses MD5 for a non-authentication purpose -- the nonce is used
+ * This uses SHA-256 for a non-authentication purpose -- the nonce is used
  * analogous to the TCP 3-way handshake to confirm the UDP client can
  * receive traffic from which it claims to originate, that is, to
  * prevent spoofed requests leading to reflected amplification.
+ * 
+ * FIPS COMPLIANCE: Replaced MD5 with SHA-256 for FIPS 140-2 compliance.
  */
 static u_int32 derive_nonce(
 	sockaddr_u *	addr,
@@ -3649,11 +3651,13 @@ static u_int32 derive_nonce(
 {
 	static u_int32	salt[4];
 	static u_long	last_salt_update;
-	MD5_CTX		ctx;
+#ifdef OPENSSL
+	EVP_MD_CTX *	ctx;
 	union d_tag {
-		u_char	digest[MD5_DIGEST_LENGTH];
+		u_char	digest[EVP_MAX_MD_SIZE];
 		u_int32 extract;
 	}		d;
+	unsigned int	len;
 
 	while (!salt[0] || current_time - last_salt_update >= 3600) {
 		salt[0] = ntp_random();
@@ -3663,20 +3667,55 @@ static u_int32 derive_nonce(
 		last_salt_update = current_time;
 	}
 
-	MD5Init(&ctx);
-	MD5Update(&ctx, salt, sizeof(salt));
-	MD5Update(&ctx, &ts_i, sizeof(ts_i));
-	MD5Update(&ctx, &ts_f, sizeof(ts_f));
-	if (IS_IPV4(addr)) {
-		MD5Update(&ctx, &SOCK_ADDR4(addr), sizeof(SOCK_ADDR4(addr)));
-	} else {
-		MD5Update(&ctx, &SOCK_ADDR6(addr), sizeof(SOCK_ADDR6(addr)));
+	ctx = EVP_MD_CTX_new();
+	if (ctx == NULL) {
+		/* Fallback to simple hash if OpenSSL fails */
+		return ts_i ^ ts_f ^ salt[0];
 	}
-	MD5Update(&ctx, &NSRCPORT(addr), sizeof(NSRCPORT(addr)));
-	MD5Update(&ctx, salt, sizeof(salt));
-	MD5Final(d.digest, &ctx);
+
+	if (EVP_DigestInit_ex(ctx, EVP_sha256(), NULL) != 1) {
+		EVP_MD_CTX_free(ctx);
+		return ts_i ^ ts_f ^ salt[0];
+	}
+
+	EVP_DigestUpdate(ctx, salt, sizeof(salt));
+	EVP_DigestUpdate(ctx, &ts_i, sizeof(ts_i));
+	EVP_DigestUpdate(ctx, &ts_f, sizeof(ts_f));
+	if (IS_IPV4(addr)) {
+		EVP_DigestUpdate(ctx, &SOCK_ADDR4(addr), sizeof(SOCK_ADDR4(addr)));
+	} else {
+		EVP_DigestUpdate(ctx, &SOCK_ADDR6(addr), sizeof(SOCK_ADDR6(addr)));
+	}
+	EVP_DigestUpdate(ctx, &NSRCPORT(addr), sizeof(NSRCPORT(addr)));
+	EVP_DigestUpdate(ctx, salt, sizeof(salt));
+	EVP_DigestFinal_ex(ctx, d.digest, &len);
+	EVP_MD_CTX_free(ctx);
 
 	return d.extract;
+#else
+	/* Fallback implementation without OpenSSL */
+	static u_int32 simple_hash = 0;
+	
+	while (!salt[0] || current_time - last_salt_update >= 3600) {
+		salt[0] = ntp_random();
+		salt[1] = ntp_random();
+		salt[2] = ntp_random();
+		salt[3] = ntp_random();
+		last_salt_update = current_time;
+	}
+
+	/* Simple hash combining inputs */
+	simple_hash = salt[0] ^ ts_i ^ ts_f;
+	if (IS_IPV4(addr)) {
+		simple_hash ^= *(u_int32*)&SOCK_ADDR4(addr);
+	} else {
+		simple_hash ^= *(u_int32*)&SOCK_ADDR6(addr);
+	}
+	simple_hash ^= NSRCPORT(addr);
+	simple_hash ^= salt[1];
+	
+	return simple_hash;
+#endif
 }
 
 

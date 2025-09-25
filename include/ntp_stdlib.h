@@ -118,8 +118,7 @@ extern	int	MD5authdecrypt	(int type, const u_char *key, size_t klen,
 extern	u_int32	addr2refid	(sockaddr_u *);
 
 /* authkeys.c */
-extern	void	MD5auth_setkey	(keyid_t, int, const u_char *, size_t,
-				 KeyAccT *c);
+/* FIPS 140-2: MD5auth_setkey function removed - no longer available */
 
 /* emalloc.c */
 #ifndef EREALLOC_CALLSITE	/* ntp_malloc.h defines */

@@ -24,7 +24,6 @@ EXTRA_DIST =				\
 	$(NULL)
 
 check_PROGRAMS =		\
-	test-a_md5encrypt	\
 	test-atoint		\
 	test-atouint		\
 	test-authkeys		\
@@ -90,7 +89,6 @@ AM_LDFLAGS  = $(LDFLAGS_NTP)
 AM_LDFLAGS += $(NTP_HARD_LDFLAGS)
 
 BUILT_SOURCES +=			\
-	$(srcdir)/run-a_md5encrypt.c	\
 	$(srcdir)/run-atoint.c		\
 	$(srcdir)/run-atouint.c		\
 	$(srcdir)/run-authkeys.c	\
@@ -138,16 +136,6 @@ noinst_HEADERS =	\
 	sockaddrtest.h	\
 	test-libntp.h	\
 	$(NULL)
-
-###
-
-test_a_md5encrypt_SOURCES =	\
-	a_md5encrypt.c		\
-	run-a_md5encrypt.c	\
-	$(NULL)
-
-$(srcdir)/run-a_md5encrypt.c: $(srcdir)/a_md5encrypt.c $(std_unity_list)
-	$(run_unity) $< $@
 
 ###
 

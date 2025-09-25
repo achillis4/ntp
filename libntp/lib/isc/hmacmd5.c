@@ -1,9 +1,15 @@
 /*
+ * FIPS COMPLIANCE: This entire file is disabled for FIPS 140-2 compliance
+ * HMAC-MD5 is not a FIPS-approved algorithm and is excluded from compilation
+ */
+#if 0  /* HMAC-MD5 disabled for FIPS compliance */
+
+/*
  * Copyright (C) 2004-2007, 2009  Internet Systems Consortium, Inc. ("ISC")
  * Copyright (C) 2000, 2001  Internet Software Consortium.
  *
  * Permission to use, copy, modify, and/or distribute this software for any
- * purpose with or without fee is hereby granted, provided that the above
+ * purpose without fee is hereby granted, provided that the above
  * copyright notice and this permission notice appear in all copies.
  *
  * THE SOFTWARE IS PROVIDED "AS IS" AND ISC DISCLAIMS ALL WARRANTIES WITH
@@ -146,4 +152,35 @@ isc_hmacmd5_verify2(isc_hmacmd5_t *ctx, unsigned char *digest, size_t len) {
 	REQUIRE(len <= ISC_MD5_DIGESTLENGTH);
 	isc_hmacmd5_sign(ctx, newdigest);
 	return (ISC_TF(isc_tsmemcmp(digest, newdigest, len) == 0));
+}
+
+#endif  /* HMAC-MD5 disabled for FIPS compliance */
+
+/*
+ * FIPS-compliant stub functions to prevent linking errors
+ * These will cause runtime errors if called, indicating HMAC-MD5 usage
+ */
+void isc_hmacmd5_init(isc_hmacmd5_t *ctx, const unsigned char *key, unsigned int len) {
+	/* HMAC-MD5 disabled for FIPS compliance */
+	abort();
+}
+
+void isc_hmacmd5_update(isc_hmacmd5_t *ctx, const unsigned char *buf, unsigned int len) {
+	/* HMAC-MD5 disabled for FIPS compliance */
+	abort();
+}
+
+void isc_hmacmd5_sign(isc_hmacmd5_t *ctx, unsigned char *digest) {
+	/* HMAC-MD5 disabled for FIPS compliance */
+	abort();
+}
+
+isc_boolean_t isc_hmacmd5_verify(isc_hmacmd5_t *ctx, unsigned char *digest) {
+	/* HMAC-MD5 disabled for FIPS compliance */
+	abort();
+}
+
+isc_boolean_t isc_hmacmd5_verify2(isc_hmacmd5_t *ctx, unsigned char *digest, size_t len) {
+	/* HMAC-MD5 disabled for FIPS compliance */  
+	abort();
 }

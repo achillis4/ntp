@@ -28,7 +28,8 @@ authusekey(
 	if (len < 1 || len > sizeof(buf))
 		return 0;
 
-	MD5auth_setkey(keyno, keytype, buf, len, NULL);
+	/* FIPS 140-2: MD5auth_setkey call removed - MD5 authentication disabled */
+	/* MD5auth_setkey(keyno, keytype, buf, len, NULL); */
 	memset(buf, 0, sizeof(buf));
-	return 1;
+	return 0; /* Return failure since MD5 auth is disabled */
 }

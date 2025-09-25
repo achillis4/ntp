@@ -274,7 +274,7 @@ session_key(
 	memcpy(&keyid, dgst, 4);
 	keyid = ntohl(keyid);
 	if (lifetime != 0) {
-		MD5auth_setkey(keyno, crypto_nid, dgst, len, NULL);
+		/* FIPS 140-2: MD5auth_setkey removed - no MD5 key support */
 		authtrust(keyno, lifetime);
 	}
 	DPRINTF(2, ("session_key: %s > %s %08x %08x hash %08x life %lu\n",
@@ -2070,7 +2070,8 @@ asn_to_calendar	(
 
 
 /*
- * bighash() - compute a BIGNUM MD5 hash of a BIGNUM number.
+ * bighash() - compute a BIGNUM SHA256 hash of a BIGNUM number.
+ * FIPS compliant: replaced MD5 with SHA256 for FIPS 140-2 compliance
  *
  * Returns void (no errors)
  */
@@ -2089,7 +2090,7 @@ bighash(
 	ptr = emalloc(len);
 	BN_bn2bin(bn, ptr);
 	ctx = digest_ctx;
-	EVP_DigestInit(ctx, EVP_md5());
+	EVP_DigestInit(ctx, EVP_sha256());
 	EVP_DigestUpdate(ctx, ptr, len);
 	EVP_DigestFinal(ctx, dgst, &len);
 	BN_bin2bn(dgst, len, bk);
